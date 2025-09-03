@@ -1,8 +1,8 @@
 ---
 layout: ../layouts/Layout.astro
-title: Research Project Page Template
+title: SEAL- Safe and Efficient Abstraction Learning for Robotic Planning
 description: Simple project page template for your research paper, built with Astro and Tailwind CSS
-favicon: favicon.svg
+favicon: converted.svg
 thumbnail: screenshot-light.png
 ---
 
@@ -18,11 +18,13 @@ import LaTeX from "../components/LaTeX.astro";
 
 import { ImageComparison } from "../components/ImageComparison.tsx";
 
-import outside from "../assets/outside.mp4";
-import transformer from "../assets/transformer.webp";
-import Splat from "../components/Splat.tsx"
-import dogsDiffc from "../assets/dogs-diffc.png"
-import dogsTrue from "../assets/dogs-true.png"
+
+import naive from "../assets/naive.mp4"
+import with_replanning from "../assets/with_replanning.mp4"
+import draw_final from "../assets/intro.png"
+import robot_exp from "../assets/robot_exp.png"
+import comparison from "../assets/comparison.jpg"
+
 
 
 import CodeBlock from "../components/CodeBlock.astro";
@@ -33,139 +35,73 @@ export const components = {pre: CodeBlock, table: Table}
   title={frontmatter.title}
   authors={[
     {
-      name: "Roman Hauksson",
-      url: "https://roman.technology",
-      institution: "Independent",
-      notes: ["*", "†"],
+      name: "Akhil R Kurup",
+      institution: "Indian Indian Institute of Science Bangalore",
     },
     {
-      name: "Author Two",
-      institution: "Institution Two",
-      notes: ["*", "†"],
+      name: "Ravi Prakash",
+      institution: "Indian Institute of Science Bangalore",
     },
-    {
-      name: "Author Three",
-      institution: "Institution Three",
-      notes: ["†"],
-    },
-    {
-      name: "Author Four",
-      institution: "Institution Four",
-    },
-  ]}
-  conference="Conference Name"
-  notes={[
-    {
-      symbol: "*",
-      text: "author note one",
-    },
-    {
-      symbol: "†",
-      text: "author note two",
-    },
-  ]}
-  links={[
-    {
-      name: "Paper",
-      url: "",
-      icon: "ri:file-pdf-2-line",
-    },
-    {
-      name: "Code",
-      url: "https://github.com/RomanHauksson/academic-project-astro-template",
-      icon: "ri:github-line",
-    },
-    {
-      name: "arXiv",
-      url: "",
-      icon: "academicons:arxiv",
-    },
-    {
-      name: "Bluesky",
-      url: "",
-      icon: "ri:bluesky-line"
-    }
+
   ]}
   />
 
-<Video source={outside} />
+<Figure>
+  <Image slot="figure" source={draw_final} altText="Diagram illustrating our framework" />
+  <span slot="caption">SEAL Framework: We start with a set of expert demonstrations of a trajectory segmented into
+the different semantic modes each part of the trajectory represents. A classifier is trained on these
+using the per-point labels. Using the uncertainty over predictions of the classifier, we select uncertain
+points and collect a few more expert demonstrations passing through those points. Finally we train
+a classifier on the combined set of trajectories which can then be used for downstream tasks..</span>
+</Figure>
 
 <HighlightedSection>
 
 ## Abstract
 
-This is a live demo for a template you can use to create a simple project page for your research paper. See the code for the template and instructions on how to use it yourself [here](https://github.com/RomanHauksson/academic-project-astro-template). It's made with the [Astro web framework](https://astro.build/) and styled with [Tailwind CSS](https://tailwindcss.com/). You write the content in [MDX](https://mdxjs.com/), which enables markdown formatting like **bold**, _italics_, and ~strikethrough~, as well as custom components like <SmallCaps>small caps.</SmallCaps>
+Advances in Large Language Models have enabled the decomposition of complex tasks into subtasks for easier planning.
+A key challenge remains: how can we ensure a robot's task execution respects implicit task constraints and remains robust to real-world perturbations. 
+We propose an active learning framework to efficiently learn a symbolic mode classifier that maps robot states to discrete modes, thereby establishing a grounded world model. 
+By using active learning to iteratively improve our classification by querying experts at uncertain mode boundaries, we can match the performance of previous approaches but without any potentially unsafe perturbed trajectories or oracles, thereby enabling policies to become robust to task-level disturbances. 
+Our findings underscore the potential for data-efficient, safe, and reliable abstraction learning to support long-term robot autonomy.
+
 
 </HighlightedSection>
 
-## Figures
-
-Use the figure component to display images, videos, equations, or any other element, with an optional caption.
+## Results
 
 <Figure>
-  <Image slot="figure" source={transformer} altText="Diagram of the transformer deep learning architecture." />
-  <span slot="caption">Diagram of the transformer deep learning architecture.</span>
+  <Image slot="figure" source={comparison} altText="Comaprison of different approaches" />
+  <span slot="caption">Comparison of the classification performance of the different methods.(b) uses 6+6 demos, (c) uses only the original 6 demos and (d) uses 6 demos + 1000 perturbations.</span>
 </Figure>
 
-## Image comparison slider
+| Method | IoU |
+|:---|---:|
+| SEAL | 0.82 |
+| GLiDE(1000) | 0.8 |
+| SEAL (Naive) | 0.73 |
+| GLiDE(400) | 0.63 |
+| GLiDE(100) | 0.53 |
 
-An interactive, accessible slider component with keyboard navigation.
-<Figure>
-  <ImageComparison slot="figure" client:load imageUrlOne={dogsDiffc.src} imageUrlTwo={dogsTrue.src} altTextOne="Photo of two dogs running side-by-side in shallow water, lossily compressed using the DiffC algorithm" altTextTwo="Original photo of two dogs running side-by-side in shallow water" />
-  <span slot="caption">A photo of two dogs running side-by-side in shallow water, lossily compressed using the <a href="https://jeremyiv.github.io/diffc-project-page/">DiffC algorithm</a>.</span>
-</Figure>
-
-## Two columns
-
-Use the two columns component to display two columns of content. In this example, the first column contains a figure with a YouTube video and the second column contains a figure with a custom [React](https://react.dev/) component. By default, they display side by side, but if the screen is narrow enough (for example, on mobile), they're arranged vertically.
+This learned mode classifier enables us to replan after perturbations.
 
 <TwoColumns>
   <Figure slot="left">
-    <YouTubeVideo slot="figure" videoId="wjZofJX0v4M" />
-    <span slot="caption">Take a look at this YouTube video.</span>
+    <Video slot="figure" source={naive} />
+    <span slot="caption">The policy fails to respect mode sequence after perturbations.</span>
   </Figure>
   <Figure slot="right">
-    <Splat slot="figure" client:idle />
-    <span slot="caption">Now look at this <a href="https://en.wikipedia.org/wiki/Gaussian_splatting">Gaussian splat</a>, rendered with a React component.</span>
+    <Video slot="figure" source={with_replanning} />
+    <span slot="caption">The mode classifier helps in relplanning after perturbations. Since mode boundaries are also known we can plan around them as well.</span>
   </Figure>
 </TwoColumns>
 
-## Heading levels
 
-Use headings to divide your content into sections.
+We also trained a mode classifier on demonstrations of a inspection task. The aim is to move in the order shown so that the item can be succesfully scanned.
 
-### Heading 3
+<Figure>
+  <Image slot="figure" source={robot_exp} altText="Real World robot experiment" />
+  <span slot="caption">Setup of the inspection task. (a) shows the real world setup.(b) shows the trajectories collected after re querying. (c) shows the predictions of the learned mode classifier.</span>
+</Figure>
 
-Go down a level to heading 3...
 
-#### Heading 4
-
-...and down again to heading 4.
-
-## LaTeX
-
-You can also add LaTeX formulas, rendered during the build process using [KaTeX](https://katex.org/) so they're quick to load for visitors of your project page. You can write them inline, like this: <LaTeX inline formula="a^2 + b^2 = c^2" />. Or, you can write them as a block:
-
-<LaTeX formula="\int_a^b f(x) dx" />
-
-## Tables
-
-You can add simple tables using [GitHub Flavored Markdown syntax](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-tables):
-
-| Model | Accuracy | F1 score | Training time (hours) |
-| :--- | :---: | :---: | :---: |
-| BERT-base | 0.89 | 0.87 | 4.5 |
-| RoBERTa-large | 0.92 | 0.91 | 7.2 |
-| DistilBERT | 0.86 | 0.84 | 2.1 |
-| XLNet | 0.90 | 0.89 | 6.8 |
-
-## BibTeX citation
-
-```bibtex
-@misc{roman2024academic,
-  author = "{Roman Hauksson}",
-  title = "Academic Project Page Template",
-  year = "2024",
-  howpublished = "\url{https://research-template.roman.technology}",
-}
-```
